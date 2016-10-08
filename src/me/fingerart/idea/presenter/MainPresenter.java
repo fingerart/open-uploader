@@ -1,5 +1,6 @@
 package me.fingerart.idea.presenter;
 
+import me.fingerart.idea.engine.PluginState;
 import me.fingerart.idea.engine.interf.UploadProgressListener;
 import me.fingerart.idea.engine.log.Log;
 import me.fingerart.idea.engine.net.ArtHttp;
@@ -121,5 +122,12 @@ public class MainPresenter implements UploadProgressListener {
                 mView.finishUpload();
             }
         });
+    }
+
+    public void delTableParams(JTable table) {
+        for (int i : table.getSelectedRows()) {
+            String key = (String) table.getModel().getValueAt(i, 0);
+            PluginState.getInstance().delParam(key);
+        }
     }
 }

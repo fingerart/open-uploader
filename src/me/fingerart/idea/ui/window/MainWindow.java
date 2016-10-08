@@ -12,17 +12,18 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.Consumer;
+import me.fingerart.idea.engine.PluginState;
+import me.fingerart.idea.engine.utils.CommonUtil;
 import me.fingerart.idea.engine.utils.ViewUtil;
 import me.fingerart.idea.presenter.MainPresenter;
 import me.fingerart.idea.ui.iview.IMainWindowView;
+import org.apache.http.util.TextUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 /**
@@ -57,23 +58,38 @@ public class MainWindow extends IMainWindowView implements ToolWindowFactory {
     }
 
     private void initView() {
-        mParamsModel = new DefaultTableModel(DEFAULT_DATA, DEFAULT_COLUMN_NAMES);
-        mTableParams.setModel(mParamsModel);
+        mTableParams.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
     }
 
     private void initEvent() {
-        mTextFieldPath.addKeyListener(new KeyListener() {
+        mTextFieldUrl.addFocusListener(new FocusListener() {
             @Override
-            public void keyTyped(KeyEvent e) {
+            public void focusGained(FocusEvent e) {
             }//Empty
 
             @Override
-            public void keyPressed(KeyEvent e) {
+            public void focusLost(FocusEvent e) {
+                String text = mTextFieldUrl.getText();
+                if (!TextUtils.isEmpty(text)) {
+                    PluginState.getInstance().setUrl(text);
+                }
+            }
+        });
+        mComboBoxModule.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                PluginState.getInstance().setModule(e.getItem().toString());
+            }
+        });
+        mTextFieldPath.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
             }//Empty
 
             @Override
-            public void keyReleased(KeyEvent e) {
+            public void focusLost(FocusEvent e) {
                 mSelectedFilePath = mTextFieldPath.getText();
+                PluginState.getInstance().setPath(mSelectedFilePath);
             }
         });
         mButtonBrowse.addActionListener(new ActionListener() {
@@ -87,9 +103,24 @@ public class MainWindow extends IMainWindowView implements ToolWindowFactory {
                         if (virtualFile.exists()) {
                             mSelectedFilePath = virtualFile.getPath();
                             mTextFieldPath.setText(mSelectedFilePath);
+                            PluginState.getInstance().setPath(mSelectedFilePath);
                         }
                     }
                 });
+            }
+        });
+        //TODO 触发保存Table数据还需优化
+        mTableParams.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+            }//Empty
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                int row = mTableParams.getSelectedRow();
+                String key = (String) mTableParams.getModel().getValueAt(row, 0);
+                String value = (String) mTableParams.getModel().getValueAt(row, 1);
+                PluginState.getInstance().addOrModParam(key, value);
             }
         });
         mButtonAdd.addActionListener(new ActionListener() {
@@ -101,6 +132,7 @@ public class MainWindow extends IMainWindowView implements ToolWindowFactory {
         mButtonDel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                mPresenter.delTableParams(mTableParams);
                 ViewUtil.delSelectedRows(mTableParams);
             }
         });
@@ -133,13 +165,31 @@ public class MainWindow extends IMainWindowView implements ToolWindowFactory {
     private void onToolWindowFirstOpen() {
         ModuleManager moduleManager = ModuleManager.getInstance(mProject);
 
+        //initUrl
+        mTextFieldUrl.setText(PluginState.getInstance().getUrl());
+
         //initModules
         LinkedList<String> list = new LinkedList<>();
         for (Module module : moduleManager.getSortedModules()) {
             list.add(module.getName());
         }
         String[] strings = list.toArray(new String[]{});
-        mComboBoxModule.setModel(new DefaultComboBoxModel<String>(strings));
+        mComboBoxModule.setModel(new DefaultComboBoxModel(strings));
+        String module = PluginState.getInstance().getModule();
+        if (!TextUtils.isEmpty(module)) {
+            mComboBoxModule.setSelectedItem(module);
+        }
+
+        //initTable
+        LinkedHashMap<String, String> params = PluginState.getInstance().getParams();
+        String[][] data;
+        if (params.isEmpty()) {
+            data = DEFAULT_DATA;
+        } else {
+            data = CommonUtil.mapToArray(params);
+        }
+        mParamsModel = new DefaultTableModel(data, DEFAULT_COLUMN_NAMES);
+        mTableParams.setModel(mParamsModel);
 
         //initPath
 //        String moduleFilePath = mModules[0].getModuleFilePath();
