@@ -1,4 +1,4 @@
-# File-Uploader
+# F-Upload
 
 Intellij Idea Plugin
 
