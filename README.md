@@ -1,4 +1,4 @@
-# F-Upload
+# Open-Uploader
 
 Intellij Idea Plugin
 
