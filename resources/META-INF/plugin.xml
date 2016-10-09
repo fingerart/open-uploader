@@ -1,6 +1,6 @@
 <idea-plugin version="2">
     <id>me.fingerart.idea.fileupload</id>
-    <name>File Upload</name>
+    <name>F-Upload</name>
     <version>1.0.0</version>
     <vendor email="fingerart.me@gmail.com" url="http://fingerart.me">FingerArt</vendor>
 
@@ -10,7 +10,7 @@
 
     <change-notes><![CDATA[
         v1.0.0 Add:
-        <br>- file upload<br>
+        <br>- F-Upload<br>
     ]]>
     </change-notes>
 
@@ -25,7 +25,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="FileUploader" icon="/image/favicon.png" anchor="right"
+        <toolWindow id="F-Upload" icon="/image/favicon.png" anchor="right"
                     factoryClass="me.fingerart.idea.ui.window.MainWindow"/>
     </extensions>
 
