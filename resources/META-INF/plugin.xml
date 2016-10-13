@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>me.fingerart.idea.openuploader</id>
     <name>Open Uploader</name>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <vendor email="fingerart.me@gmail.com" url="http://fingerart.me">FingerArt</vendor>
 
     <description><![CDATA[
@@ -9,6 +9,9 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        v1.0.1 Add:
+        <br>- Compatibility with IntelliJ Platform Products<br>
+
         v1.0.0 Add:
         <br>- Open Uploader<br>
     ]]>
@@ -19,9 +22,7 @@
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
-    <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
-    -->
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
